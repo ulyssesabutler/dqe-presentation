@@ -1,5 +1,6 @@
 \documentclass[10pt,aspectratio=169]{beamer}
 \usepackage{fontspec}
+\usepackage{unicode-math}
 
 %\setmainfont{Times New Roman}
 %\setsansfont{Montserrat}
@@ -10,6 +11,10 @@
   BoldFont       = STIXTwoText-Bold,
   ItalicFont     = STIXTwoText-Italic,
   BoldItalicFont = STIXTwoText-BoldItalic,
+]
+\setmathfont{STIXTwoMath-Regular}[
+  Path      = nyu-brand/stix-font/,
+  Extension = .otf,
 ]
 
 \setsansfont{NYUPerstare-Regular}[
