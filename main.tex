@@ -85,37 +85,12 @@
 
 \frame{\sffamily\titlepage}
 
-\sepframe[title={Table of contents}, image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
-\section{Introduction}
+\input{sections/introduction.tex}
+\input{sections/related-works-packet-processing.tex}
+\input{sections/related-works-retiming.tex}
+\input{sections/gapl-language.tex}
+\input{sections/hierarchical-retiming.tex}
 
-\begin{frame}
-\frametitle{Sample frame title}
-This is some text in the first frame. This is some text in the first frame. This is some text in the first frame.~\footfullcite{retiming-original}
-\end{frame}
-
-\section{Code}
-\sepframe[image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
-
-\begin{frame}[fragile]
-\frametitle{Code Listing Example}
-\begin{lstlisting}[language=gapl, caption={A GAPL program}, label={lst:gapl-example}]
-interface byte wire[8]
-interface data byte[32]
-interface packet {
-  payload: data,
-  metadata: byte,
-}
-
-function map(
-  I: interface, O: interface,
-  s: integer, op: I => O
-) i: I[s] => o: O[s] {
-  i[s-1] => op => o[s-1];
-  if (s > 1) {
-    i[0:s-2] => map(I, O, s-1, op) => o[0:s-2];
-  }
-}
-\end{lstlisting}
-\end{frame}
+\thanksframe{Merci beaucoup!}
 
 \end{document}

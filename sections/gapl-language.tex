@@ -1,0 +1,53 @@
+\section{GAPL Language}
+\sepframe[image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
+
+\begin{frame}{Overview}
+    GAPL programs consist a series of \lstinline|interface| and \lstinline|function| definitions.
+
+    \begin{itemize}
+        \item Each can be specified with a list of typed parameters, evalutated at compile time
+    \end{itemize}
+
+    Interface definitions specify the shape of buses for transmitting data through the circuit.
+
+    \begin{itemize}
+        \item Parameters types include integers (to specify bus widths) and subinterfaces
+    \end{itemize}
+
+    Function definitions specify the logic for processing data on the circuit.
+
+    \begin{itemize}
+        \item Parameters types include integers, interfaces, and other functions
+        \item Specified with a list of input and output ports, each typed with an interface
+        \item Defined using a series of connection statements
+        \item Users employ \lstinline|if|/\lstinline|else| statements to create different circuits based on parameter values.
+    \end{itemize}
+
+    We'll discuss some idioms that we can use to express packet processing applications.
+\end{frame}
+
+\begin{frame}[fragile]{Interfaces}
+    \begin{columns}[T]
+        \begin{column}{0.45\textwidth}
+\begin{lstlisting}[language=gapl]
+interface byte wire[8]
+
+interface bytearray(size: integer)
+    byte[size]
+
+interface packet(type: interface) {
+    metadata: bytearray(16),
+    data: type,
+}
+
+interface packet32
+    packet(bytearray(32))
+\end{lstlisting}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+            \begin{itemize}
+                \item Explanation point
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
