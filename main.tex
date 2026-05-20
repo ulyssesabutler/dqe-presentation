@@ -1,0 +1,49 @@
+\documentclass[10pt,aspectratio=169]{beamer}
+\usepackage{fontspec}
+
+%\setmainfont{Times New Roman}
+%\setsansfont{Montserrat}
+
+\setmainfont{STIXTwoText-Regular}[
+  Path           = nyu-brand/stix-font/,
+  Extension      = .otf,
+  BoldFont       = STIXTwoText-Bold,
+  ItalicFont     = STIXTwoText-Italic,
+  BoldItalicFont = STIXTwoText-BoldItalic,
+]
+
+\setsansfont{NYUPerstare-Regular}[
+  Path           = nyu-brand/primary-font/OpenTypeFonts/,
+  Extension      = .otf,
+  BoldFont       = NYUPerstare-Bold,
+  ItalicFont     = NYUPerstare-Italic,
+  BoldItalicFont = NYUPerstare-BoldItalic,
+]
+
+\usetheme{Amurmaple}
+\setbeamerfont{normal text}{family=\rmfamily}
+\setbeamerfont{institute}{series=\bfseries}
+\setbeamerfont{subtitle}{family=\rmfamily}
+\setbeamerfont{date}{series=\bfseries}
+\AtBeginDocument{\usebeamerfont{normal text}}
+
+\title{GAPL}
+\author[Ulysses~Butler]{Ulysses A. Butler}
+\subtitle{High-performance functional programming\\for packet processing on FPGAs}
+\institute[NYU]{New York University}
+\date{June 19, 2026}
+\titlegraphic{\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}
+\mail{ulysses@uabutler.com}
+\webpage{https://www.gapl.dev/}
+\collaboration{\bfseries Depth Qualifying Exam}
+
+\begin{document}
+
+\frame{\sffamily\titlepage}
+
+\begin{frame}
+\frametitle{Sample frame title}
+This is some text in the first frame. This is some text in the first frame. This is some text in the first frame.
+\end{frame}
+
+\end{document}
