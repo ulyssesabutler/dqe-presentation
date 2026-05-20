@@ -299,7 +299,7 @@ class]%
       \fi%
     \else%
       \node[anchor=north~west,rotate=90,color=white] at (current~page.south~west)%
-      (title) {\scriptsize\insertshorttitle\quad---\quad \insertshortauthor%
+      (title) {\scriptsize\insertshorttitle\quad---\quad \insertsection%
       };%
       \ifbeamer@am@nogauge%
         \ifnum\insertframenumber>\insertmainframenumber % gauge only in main part%
@@ -499,7 +499,7 @@ class]%
     \node[anchor=north]
     at ([yshift=-20pt]current page.north) (section)
     {\Large\textcolor{white}{Part~\insertpartnumber}};
-    \node[anchor=north, font=\huge\bfseries, text width=0.9\linewidth,align=center]
+    \node[anchor=north, font=\sffamily\huge\bfseries, text width=0.9\linewidth,align=center]
     at ([yshift=-50pt]current page.north) (part)
     {\textcolor{white}{\insertpart}};
   \end{tikzpicture}
@@ -604,7 +604,7 @@ class]%
       ([yshift=15pt]current~page.west)~rectangle~([yshift=10pt]current~page.
       east);
       \fi
-      \node[anchor=east,text~width = 0.75\linewidth, font=\huge\bfseries,align=right]
+      \node[anchor=east,text~width = 0.75\linewidth, font=\sffamily\huge\bfseries,align=right]
       at ([yshift=-50pt,xshift=-20pt]current~page.north~east) (section)
       {\textcolor{structure}{\amurmaple@septitle}};
       \node[]
@@ -657,7 +657,7 @@ class]%
       \fill[Amurmaple@rule]
       ([yshift=15pt]current page.west) rectangle ([yshift=10pt]current page.east);
       \fi
-      \node[anchor=east,text width = 0.95\linewidth, font=\huge\bfseries,align=right]
+      \node[anchor=east,text width = 0.95\linewidth, font=\sffamily\huge\bfseries,align=right]
       at ([yshift=50pt,xshift=-20pt]current page.south east) (section)
       {\textcolor{white}{#2}};
       \node[anchor=south west]

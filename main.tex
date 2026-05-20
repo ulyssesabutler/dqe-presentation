@@ -2,6 +2,7 @@
 \usepackage{fontspec}
 \usepackage{unicode-math}
 \usepackage{listings}
+\usepackage{biblatex}
 
 \setmainfont{STIXTwoText-Regular}[
   Path           = nyu-brand/stix-font/,
@@ -78,14 +79,22 @@
 \webpage{https://www.gapl.dev/}
 \collaboration{\bfseries Depth Qualifying Exam}
 
+\bibliography{reference.bib}
+
 \begin{document}
 
 \frame{\sffamily\titlepage}
 
+\sepframe[title={Table of contents}, image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
+\section{Introduction}
+
 \begin{frame}
 \frametitle{Sample frame title}
-This is some text in the first frame. This is some text in the first frame. This is some text in the first frame.
+This is some text in the first frame. This is some text in the first frame. This is some text in the first frame.~\footfullcite{retiming-original}
 \end{frame}
+
+\section{Code}
+\sepframe[image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
 
 \begin{frame}[fragile]
 \frametitle{Code Listing Example}
