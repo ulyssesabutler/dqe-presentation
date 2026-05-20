@@ -1,9 +1,7 @@
 \documentclass[10pt,aspectratio=169]{beamer}
 \usepackage{fontspec}
 \usepackage{unicode-math}
-
-%\setmainfont{Times New Roman}
-%\setsansfont{Montserrat}
+\usepackage{listings}
 
 \setmainfont{STIXTwoText-Regular}[
   Path           = nyu-brand/stix-font/,
@@ -32,6 +30,44 @@
 \setbeamerfont{date}{series=\bfseries}
 \AtBeginDocument{\usebeamerfont{normal text}}
 
+\lstdefinestyle{nyu}{
+    backgroundcolor=\color{NYULightGray},
+    commentstyle=\color{NYUMediumGray1},
+    keywordstyle=\color{NYUMagenta},
+    numberstyle=\tiny\color{NYUBlue},
+    stringstyle=\color{NYUTeal},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=nyu}
+\lstdefinelanguage{ANTLR}{
+  morekeywords={grammar, parser, lexer, returns, locals, options, tokens, fragment, import, mode, channels},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true,
+  alsoletter={_},
+}
+\lstdefinelanguage{gapl}{
+    sensitive = true,
+    keywords = [1]{interface, parameter, function, stream, signal, declare, if, else, null, true, false, integer, wire},
+    ndkeywords = {+, -, *, /, ==, !=, >=, <=, =>, ., ::}
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]"
+}
+
 \title{GAPL}
 \author[Ulysses~Butler]{Ulysses A. Butler}
 \subtitle{High-performance functional programming\\for packet processing on FPGAs}
@@ -49,6 +85,28 @@
 \begin{frame}
 \frametitle{Sample frame title}
 This is some text in the first frame. This is some text in the first frame. This is some text in the first frame.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Code Listing Example}
+\begin{lstlisting}[language=gapl, caption={A GAPL program}, label={lst:gapl-example}]
+interface byte wire[8]
+interface data byte[32]
+interface packet {
+  payload: data,
+  metadata: byte,
+}
+
+function map(
+  I: interface, O: interface,
+  s: integer, op: I => O
+) i: I[s] => o: O[s] {
+  i[s-1] => op => o[s-1];
+  if (s > 1) {
+    i[0:s-2] => map(I, O, s-1, op) => o[0:s-2];
+  }
+}
+\end{lstlisting}
 \end{frame}
 
 \end{document}

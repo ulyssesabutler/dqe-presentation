@@ -19,19 +19,33 @@
 \ProvidesPackage{beamerthemeAmurmaple}[2024/02/07 v.1.3 Theme for the Beamer
 class]%
 
+% NYU Brand Colors — https://www.nyu.edu/employees/resources-and-services/media-and-communications/nyu-brand-guidelines/designing-in-our-style/nyu-colors.html
+% Primary
+\definecolor{NYUViolet}{HTML}{57068c}
+\definecolor{NYUUltraViolet}{HTML}{8900e1}
+\definecolor{NYUBlack}{HTML}{000000}
+% Secondary
+\definecolor{NYUDeepViolet}{HTML}{330662}
+\definecolor{NYUMediumViolet1}{HTML}{702b9d}
+\definecolor{NYUMediumViolet2}{HTML}{7b5aa6}
+\definecolor{NYULightViolet1}{HTML}{ab82c5}
+\definecolor{NYULightViolet2}{HTML}{eee6f3}
+% Neutrals
+\definecolor{NYUDarkGray}{HTML}{404040}
+\definecolor{NYUMediumGray1}{HTML}{6d6d6d}
+\definecolor{NYUMediumGray2}{HTML}{b8b8b8}
+\definecolor{NYUMediumGray3}{HTML}{d6d6d6}
+\definecolor{NYULightGray}{HTML}{f2f2f2}
+% Accents
+\definecolor{NYUTeal}{HTML}{009b8a}
+\definecolor{NYUMagenta}{HTML}{fb0f78}
+\definecolor{NYUBlue}{HTML}{59b2d1}
+\definecolor{NYUYellow}{HTML}{f4ec51}
 
-% some colors
-\definecolor{AmurmapleRed}{RGB}{87,6,140}
-\definecolor{AmurmapleBlack}{rgb}{0.17,0.17,0.17}
-\definecolor{AmurmapleOrange}{RGB}{230,108,17}
-\definecolor{AmurmapleBlue}{RGB}{55,119,231}
-\definecolor{AmurmapleGreen}{rgb}{0.1,0.4,0.1}
-\definecolor{AmurmapleRemarkColor}{rgb}{0.2,0.2,0.2}
-
-\colorlet{Amurmaple@structure}{AmurmapleRed}
-\colorlet{Amurmaple@alert}{AmurmapleOrange}
-\colorlet{Amurmaple@info}{AmurmapleBlue}
-\colorlet{Amurmaple@example}{AmurmapleGreen}
+\colorlet{Amurmaple@structure}{NYUViolet}
+\colorlet{Amurmaple@alert}{NYUMagenta}
+\colorlet{Amurmaple@info}{NYUBlue}
+\colorlet{Amurmaple@example}{NYUTeal}
 \colorlet{Amurmaple@rule}{black}
 
 \def\amurmaple@sidebarwidth{58pt}
@@ -45,15 +59,6 @@ class]%
 \newif\ifbeamer@am@delaunay
 \beamer@am@delaunayfalse
 \DeclareOptionBeamer{delaunay}{\beamer@am@delaunaytrue}
-\newif\ifbeamer@am@amurmapleblue
-\beamer@am@amurmaplebluefalse
-\DeclareOptionBeamer{amurmapleblue}{\beamer@am@amurmaplebluetrue}
-\newif\ifbeamer@am@amurmaplegreen
-\beamer@am@amurmaplegreenfalse
-\DeclareOptionBeamer{amurmaplegreen}{\beamer@am@amurmaplegreentrue}
-\newif\ifbeamer@am@amurmapleblack
-\beamer@am@amurmapleblackfalse
-\DeclareOptionBeamer{amurmapleblack}{\beamer@am@amurmapleblacktrue}
 \newif\ifbeamer@am@sidebar
 \beamer@am@sidebarfalse
 \DeclareOptionBeamer{sidebarwidth}{\def\amurmaple@sidebarwidth{#1}}
@@ -203,27 +208,6 @@ class]%
 \usetikzlibrary{automata}
 \usetikzlibrary{arrows}
 \usetikzlibrary{calc}
-
-% colors
-\ifbeamer@am@amurmapleblue
-\colorlet{Amurmaple@structure}{AmurmapleBlue!80!black}
-\colorlet{Amurmaple@alert}{AmurmapleOrange}
-\colorlet{Amurmaple@info}{AmurmapleRed}
-\colorlet{Amurmaple@example}{AmurmapleGreen}
-\fi
-\ifbeamer@am@amurmaplegreen
-\colorlet{Amurmaple@structure}{AmurmapleGreen!80!black}
-\colorlet{Amurmaple@alert}{AmurmapleOrange}
-\colorlet{Amurmaple@info}{AmurmapleRed}
-\colorlet{Amurmaple@example}{AmurmapleBlue}
-\fi
-\ifbeamer@am@amurmapleblack
-\colorlet{Amurmaple@structure}{AmurmapleBlack}
-\colorlet{Amurmaple@alert}{AmurmapleOrange}
-\colorlet{Amurmaple@info}{AmurmapleRed}
-\colorlet{Amurmaple@example}{AmurmapleBlue}
-\setbeamercolor{description item}{bg=white,fg=Amurmaple@info}
-\fi
 
 \setbeamercolor{structure}{fg=Amurmaple@structure}
 \setbeamercolor{itemize item}{fg=structure!60}
@@ -746,7 +730,7 @@ class]%
 
   \NewDocumentEnvironment{remark}{o}{
    \tcbset{%
-    arc=0pt,outer arc=0pt,colback=AmurmapleRemarkColor!10,colframe=AmurmapleRemarkColor,
+    arc=0pt,outer arc=0pt,colback=NYUMediumGray1!10,colframe=NYUMediumGray1,
     boxsep=0pt,left=10pt,right=10pt,top=8pt,bottom=10pt, bottomtitle = 3pt, toptitle=3pt,
     boxrule=0pt
   }
