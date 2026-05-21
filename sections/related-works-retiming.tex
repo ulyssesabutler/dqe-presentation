@@ -120,6 +120,35 @@
 
 \end{frame}
 
+\begin{frame}{Additional Definitions}
+  Recall that nodes and edges are weighted.
+
+  \begin{itemize}
+    \item For each vertex $v$, $d(v)$ is the propagation delay of the corresponding functional unit
+    \item For each edge $(u, v)$, $w(u, v)$ is the number of registers on that edge
+  \end{itemize}
+
+  For any connected nodes $u$ and $v$, $W(u, v)$ is the smallest register count among paths from $u$ to $v$.
+
+  \begin{itemize}
+    \item For a retiming, $r$, we have $W_r(u, v)$
+    \item Leiserson and Saxe show that $W_r(u, v) = W(u, v) + r(v) - r(u)$
+    \begin{itemize}
+      \item In fact, all paths from $u$ to $v$ have their register count changed by $r(v) - r(u)$
+      \item We call this the \textit{retiming difference}
+    \end{itemize}
+  \end{itemize}
+
+  Finally, $D(u, v)$ is the largest propagation delay among paths from $u$ to $v$ with $W(u, v)$ registers.
+
+  \begin{itemize}
+    \item Since the shortest (register) path doesn't change, this value doesn't change when retiming
+  \end{itemize}
+
+  A \textit{valid retiming} is one that produces valid (non-negative) register counts on all edges.
+
+\end{frame}
+
 \begin{frame}{Retiming Goals}
 
   Circuit retiming can change the critical path length and the register count of a circuit.
@@ -174,8 +203,17 @@
   Given an edge, $(u, v)$, we need to ensure $w_r(u, v) \geq 0$.
   \begin{itemize}
     \item We add the constraint $r(v) - r(u) \geq -w(u, v)$
+    \item Ensures the retimed circuit is valid
   \end{itemize}
 
   \framesection{Clock Period}
+
+  If given a clock period constraint, $c$, ensure the critical path length does not exceed it.
+  
+  \begin{itemize}
+    \item Consider every connected pair of nodes, $u$ and $v$
+    \item Is $D(u, v) > c$? If so, we need to ensure this path has at least one register after retiming.
+    \item That is, we need to ensure $W_r(u, v) > 0$, which is equivalent to $r(v) - r(u) \geq 1-W(u, v)$
+  \end{itemize}
 
 \end{frame}
