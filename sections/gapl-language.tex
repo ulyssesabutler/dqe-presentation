@@ -45,9 +45,67 @@ interface packet32
 \end{lstlisting}
         \end{column}
         \begin{column}{0.45\textwidth}
+            The most basic interface is the \lstinline|wire|.
             \begin{itemize}
-                \item Explanation point
+                \item Carries a single bit of data
             \end{itemize}
+            Users can define more complex interfaces.
+            \begin{itemize}
+                \item Use the \lstinline|interface| keyword
+                \item Indexed group of interfaces can be grouped as arrays
+                \item Named interfaces can be grouped as struts
+            \end{itemize}
+            To the left, \lstinline|bytearray| and \lstinline|packet| are examples of parameterized interfaces.
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Functions}
+    \begin{columns}[T]
+        \begin{column}{0.45\textwidth}
+            This is an example of a function definition.
+            \begin{itemize}
+                \item Identifier: Line 1
+                \begin{itemize}
+                    \item \lstinline|map|
+                \end{itemize}
+                \item Parameters: Lines 2--4
+                \begin{itemize}
+                    \item \lstinline|I|, \lstinline|O|, \lstinline|size|, and \lstinline|op|
+                \end{itemize}
+                \item Ports: Line 5
+                \begin{itemize}
+                    \item \lstinline|i| and \lstinline|o|
+                \end{itemize}
+                \item Connections: Lines 6--14
+                \begin{itemize}
+                    \item 2 statements, 2 or 4 connections
+                \end{itemize}
+            \end{itemize}
+            This definition contains a conditional statement.
+                \begin{itemize}
+                    \item Evaluated at compile time
+                    \item Cannot be used to create a circuit whose behavior depends on the input
+                \end{itemize}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+\begin{lstlisting}[language=gapl]
+function map(
+    I: interface, O: interface,
+    size: integer,
+    op: I => O,
+) i: I[size] => o: O[size] {
+    i[size - 1]
+        => op
+        => o[size - 1];
+
+    if (size > 1) {
+        i[0:size - 2]
+            => map(I, O, size - 1, op)
+            => o[0:size - 2];
+    }
+}
+\end{lstlisting}
         \end{column}
     \end{columns}
 \end{frame}

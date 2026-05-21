@@ -1,8 +1,181 @@
 \section{Related Work --- Retiming}
 \sepframe[image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
 
-\begin{frame}
-\begin{quotation}[Charles E. Leiserson and James B. Saxe]
-Retiming, the technique of inserting and deleting registers in such a way as to preserve function, can be used to produce an even faster circuit
-\end{quotation}
+\begin{frame}[allowframebreaks]{Background}
+  Circuits can be modeled as directed graphs.
+
+  \begin{itemize}
+      \item Nodes represent functional units, like adders and multiplexers
+      \item Edges represent wires which carry data in a specific direction
+  \end{itemize}
+
+  In this model, registers form the basic memory element, storing data during one clock cycle and making it available in the next cycle.
+
+  \begin{itemize}
+      \item Since registers just carry data, we can model them on the edges of our graph
+  \end{itemize}
+
+  \begin{quotation}[Charles E. Leiserson and James B. Saxe]
+  Retiming, the technique of inserting and deleting registers in such a way as to preserve function, can be used to produce an even faster circuit
+  \end{quotation}
+
+  The amount of time it takes for data to traverse a function unit is its propagation delay.
+
+  \begin{itemize}
+      \item The propagation delay of a path is the sum of the propagation delays of its function units
+      \item The path with the largest propagation delay and no registers is the critical path
+      \item A clock period must be at least as large as the propagation delay of its critical path
+  \end{itemize}
+
+  \framebreak
+
+  \framesection{Functional Equivalence}
+
+  Our circuits accept an input every clock cycle and produce an output every clock cycle.
+
+  \begin{itemize}
+      \item Given two circuits, we can say they are functionally \textit{equivalent}\footnote{See the definition of \textit{equivalent} for two synchronous systems for a more complete definition.} if, for every input sequence, they produce the same output sequence~\footfullcite{optimizing-synchronous-systems}
+  \end{itemize}
+
+  The circuit on the right is functionally equivalent to the circuit on the left.
+
+  \framesection{Retiming}
+
+  The circuit on the right happens to also be a retimed version of the circuit on the left.
+  \begin{itemize}
+      \item This retiming reduced the critical path length
+      \item It also increased the number of registers
+  \end{itemize}
+
+  \begin{tikzpicture}[remember picture, overlay,
+    circ/.style={circle, draw, minimum size=0.65cm, inner sep=0pt},
+    reg/.style={rectangle, draw, minimum size=0.3cm, fill=white},
+    node distance=1.4cm
+  ]
+    \node[circ] (a1) at ([xshift=-4.9cm, yshift=2cm]current page.south) {$a$};
+    \node[circ, right of=a1] (b1) {$b$};
+    \node[circ, right of=b1] (c1) {$c$};
+    \node[circ, right of=c1] (d1) {$d$};
+
+    \node[circ, right of=d1] (a2) {$a$};
+    \node[circ, right of=a2] (b2) {$b$};
+    \node[circ, right of=b2] (c2) {$c$};
+    \node[circ, right of=c2] (d2) {$d$};
+
+    \draw[->] (a1) -- (b1);
+    \draw[->] (b1) to[bend left=20] (c1);
+    \draw[->] (b1) to[bend right=20] (c1);
+    \draw[->] (c1) -- node[reg] {} (d1);
+
+    \draw[->] (a2) -- (b2);
+    \draw[->] (b2) to[bend left=20]  node[reg] {} (c2);
+    \draw[->] (b2) to[bend right=20] node[reg] {} (c2);
+    \draw[->] (c2) -- (d2);
+  \end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}{Retiming Definition}
+
+  Edges in our graph are assigned non-negative integer weights.
+
+  \begin{itemize}
+    \item The weight represents the number of registers on that edge
+  \end{itemize}
+
+  Formally, a retiming is a function $r$ that assigns an integer to each vertex in the graph~\footfullcite{retiming-original}.
+
+  \begin{itemize}
+    \item Intuitively, $r(v)$ represents the number of registers that are moved from the outgoing edges of vertex $v$ to its incoming edges
+    \item A retiming of the left circuit where $r(c) = 1$ and $r(a)=r(b)=r(d)=0$ produces the right circuit
+    \item More precisely, for each edge $(u, v)$ with weight $w(u, v)$, the weight after applying a retiming, $r$, is $w_r(u, v) = w(u, v) + r(v) - r(u)$
+  \end{itemize}
+  Leiserson and Saxe show that a retimed circuit remains functionally equivalent.
+
+  \begin{tikzpicture}[remember picture, overlay,
+    circ/.style={circle, draw, minimum size=0.65cm, inner sep=0pt},
+    reg/.style={rectangle, draw, minimum size=0.3cm, fill=white},
+    node distance=1.4cm
+  ]
+    \node[circ] (a1) at ([xshift=-4.9cm, yshift=2cm]current page.south) {$a$};
+    \node[circ, right of=a1] (b1) {$b$};
+    \node[circ, right of=b1] (c1) {$c$};
+    \node[circ, right of=c1] (d1) {$d$};
+
+    \node[circ, right of=d1] (a2) {$a$};
+    \node[circ, right of=a2] (b2) {$b$};
+    \node[circ, right of=b2] (c2) {$c$};
+    \node[circ, right of=c2] (d2) {$d$};
+
+    \draw[->] (a1) -- (b1);
+    \draw[->] (b1) to[bend left=20] (c1);
+    \draw[->] (b1) to[bend right=20] (c1);
+    \draw[->] (c1) -- node[reg] {} (d1);
+
+    \draw[->] (a2) -- (b2);
+    \draw[->] (b2) to[bend left=20]  node[reg] {} (c2);
+    \draw[->] (b2) to[bend right=20] node[reg] {} (c2);
+    \draw[->] (c2) -- (d2);
+  \end{tikzpicture}
+
+\end{frame}
+
+\begin{frame}{Retiming Goals}
+
+  Circuit retiming can change the critical path length and the register count of a circuit.
+
+  \begin{itemize}
+    \item Algorithms exist to find retimings that optimize for one of these metrics~\footfullcite{retiming-theory-practice}
+  \end{itemize}
+
+  \framesection{Clock Period Minimization}
+
+  By finding the retiming that minimizes the critical path length, we can minimize the clock period.
+
+  \framesection{State Minimization}
+
+  Minimize the number of registers in a circuit.
+
+  \begin{itemize}
+    \item Removing registers often requires increasing the critical path length
+    \item So, constrain to a target clock period
+  \end{itemize}
+
+  This optimization goal is what we'll focus on.
+
+  \begin{itemize}
+    \item Especially useful in enviroments where you're targeting a specific clock period.
+  \end{itemize}
+
+\end{frame}
+
+\begin{frame}[allowframebreaks]{State Minimization}
+
+  This problem can be expressed as an ILP that encodes the retiming graph and the retiming constraints.
+
+  \begin{itemize}
+    \item Each vertex $v$ corresponds to an integer variable, whose value represents the the retiming label of that vertex, $r(v)$
+  \end{itemize}
+
+  \framesection{Objective Function}
+
+  We want to minimize the number of registers in the circuit, which is given by
+
+  $$\sum_{(u, v) \in E} w_r(u, v) = \sum_{(u, v) \in E} (w(u, v) + r(v) - r(u))$$
+
+  Since $\sum_{(u,v)} w(u, v)$ is a constant, we can equivalently minimize $\sum_{(u, v)} (r(v) - r(u))$. Finally, this can be rearranged to see that we can equivalently minimize
+
+  $$\sum_{v \in V} r(v) (\text{indegree}(v) - \text{outdegree}(v))$$
+
+  \framebreak
+
+  \framesection{Non-negative Register Count}
+
+  Given an edge, $(u, v)$, we need to ensure $w_r(u, v) \geq 0$.
+  \begin{itemize}
+    \item We add the constraint $r(v) - r(u) \geq -w(u, v)$
+  \end{itemize}
+
+  \framesection{Clock Period}
+
 \end{frame}
