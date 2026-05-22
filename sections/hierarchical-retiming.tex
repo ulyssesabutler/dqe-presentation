@@ -3,7 +3,91 @@
 
 \begin{frame}{Overview}
 
-    Retiming traditionally operates on an entire circuit.
 
+    \begin{itemize}
+        \item Retiming traditionally operates on an entire circuit, monolithically. Here, we describe a hierarchical approach to retiming.
+        \item Within the context of a module that invokes a submodule, we split the \textit{original} retiming problem of the module into an \textit{interior} and \textit{exterior}
+    \end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[
+  port/.style={circle, draw, fill=white, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+
+%% ---- TOP: module-interface (scale=0.75, dashed box centered at outer (0, 4.5)) ----
+\begin{scope}[shift={(-3.0, 4.5)}, scale=0.75]
+  \draw[dashed] (0, -1.6) rectangle (8, 1.6);
+  \node[port] (i1) at (0,  1.0) {$i_0$};
+  \node[port] (i2) at (0, -1.0) {$i_1$};
+  \node[port] (o1) at (8,  1.0) {$o_0$};
+  \node[port] (o2) at (8, -1.0) {$o_1$};
+  \node[font=\scriptsize\itshape] (toplbl) at (4, 0) {(subcomponent graph)};
+  \draw[->] (-1.3,  1.0) -- (i1);
+  \draw[->] (-1.3, -1.0) -- (i2);
+  \draw[->] (o1) -- (9.3,  1.3);
+  \draw[->] (o1) -- (9.3,  0.7);
+  \draw[->] (o2) -- (9.3, -0.7);
+  \draw[->] (o2) -- (9.3, -1.3);
+  \draw[->] (i1) -- (toplbl.west |- {(0, 0.7)});
+  \draw[->] (i1) -- (toplbl.west |- {(0, 0.3)});
+  \draw[->] (i2) -- (toplbl.west |- {(0,-0.3)});
+  \draw[->] (i2) -- (toplbl.west |- {(0,-0.7)});
+  \draw[->] (toplbl.east |- {(0, 0.7)}) -- (o1);
+  \draw[->] (toplbl.east |- {(0,-0.7)}) -- (o2);
+\end{scope}
+
+%% ---- Large arrows from top to each bottom graph ----
+%% Bottom of top dashed box is at outer y = 4.5 - 1.6*0.75 = 3.3
+%% Bottom figures centered at outer y = 0.3
+\draw[-{Implies[scale=1.5]}, double, double distance=3pt, line width=0.6pt, shorten >=6pt, shorten <=4pt]
+  (-0.3, 3.1) to[out=-120, in=90] (-4.0, 0.82);
+\node[font=\small\itshape] at (-2.8, 2.5) {interior};
+\draw[-{Implies[scale=1.5]}, double, double distance=3pt, line width=0.6pt, shorten >=6pt, shorten <=4pt]
+  (0.3, 3.1) to[out=-60, in=90] (5.5, 1.21);
+\node[font=\small\itshape] at (3.8, 2.7) {exterior};
+
+%% ---- BOTTOM LEFT: super-source-sink (scale=0.65, content centered at outer (-4.0, 0.3)) ----
+\begin{scope}[shift={(-7.575, 0.3)}, scale=0.65]
+  \node[body] (si) at (0,   0) {$s_i$};
+  \node[body] (so) at (11,  0) {$s_o$};
+  \node[body] (i0) at (2,  0.8) {$i_0$};
+  \node[body] (i1) at (2, -0.8) {$i_1$};
+  \node[body] (o0) at (9,  0.8) {$o_0$};
+  \node[body] (o1) at (9, -0.8) {$o_1$};
+  \node[font=\scriptsize\itshape] (intlbl) at (5.5, 0) {(subcomponent graph)};
+  \draw[->] (si) -- (i0);
+  \draw[->] (si) -- (i1);
+  \draw[->] (i0) -- (intlbl.west |- {(0, 0.7)});
+  \draw[->] (i0) -- (intlbl.west |- {(0, 0.3)});
+  \draw[->] (i1) -- (intlbl.west |- {(0,-0.3)});
+  \draw[->] (i1) -- (intlbl.west |- {(0,-0.7)});
+  \draw[->] (intlbl.east |- {(0, 0.6)}) -- (o0);
+  \draw[->] (intlbl.east |- {(0,-0.6)}) -- (o1);
+  \draw[->] (o0) -- (so);
+  \draw[->] (o1) -- (so);
+\end{scope}
+
+%% ---- BOTTOM RIGHT: contracted-module (scale=0.65, dashed box centered at outer (5.5, 0.3)) ----
+\begin{scope}[shift={(3.55, 0.3)}, scale=0.65]
+  \draw[dashed] (0, -1.65) rectangle (6, 1.65);
+  \node[port] (ci) at (0, 0) {$c_i$};
+  \node[port] (co) at (6, 0) {$c_o$};
+  \node[font=\scriptsize\itshape] (extlbl) at (3, 0) {(contracted graph)};
+  \draw[->] (-1.3,  0.4) -- (ci);
+  \draw[->] (-1.3, -0.4) -- (ci);
+  \draw[->] (co) -- (7.3,  0.9);
+  \draw[->] (co) -- (7.3,  0.3);
+  \draw[->] (co) -- (7.3, -0.3);
+  \draw[->] (co) -- (7.3, -0.9);
+  \draw[->] (ci) -- (extlbl.west |- {(0, 0.3)});
+  \draw[->] (ci) -- (extlbl.west |- {(0,-0.3)});
+  \draw[->] (extlbl.east |- {(0, 0.3)}) -- (co);
+  \draw[->] (extlbl.east |- {(0,-0.3)}) -- (co);
+\end{scope}
+
+\end{tikzpicture}
+\end{center}
     
 \end{frame}
