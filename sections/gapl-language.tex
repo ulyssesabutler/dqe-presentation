@@ -71,15 +71,15 @@ interface packet32
                 \end{itemize}
                 \item Parameters: Lines 2--4
                 \begin{itemize}
-                    \item \lstinline|I|, \lstinline|O|, \lstinline|size|, and \lstinline|op|
+                    \item \lstinline|T|, \lstinline|U|, \lstinline|size|, and \lstinline|op|
                 \end{itemize}
                 \item Ports: Line 5
                 \begin{itemize}
-                    \item \lstinline|i| and \lstinline|o|
+                    \item \lstinline|i|, \lstinline|init|, and \lstinline|o|
                 \end{itemize}
-                \item Connections: Lines 6--14
+                \item Connections: Lines 5--14
                 \begin{itemize}
-                    \item 2 statements, 2 or 4 connections
+                    \item Each statement specifies 2 connections
                 \end{itemize}
             \end{itemize}
             This definition contains a conditional statement.
@@ -90,20 +90,100 @@ interface packet32
         \end{column}
         \begin{column}{0.45\textwidth}
 \begin{lstlisting}[language=gapl]
-function map(
-    I: interface, O: interface,
-    size: integer,
-    op: I => O,
-) i: I[size] => o: O[size] {
-    i[size - 1]
-        => op
-        => o[size - 1];
+function fold(
+  T: interface, U: interface,
+  size: integer, op: T, U => U,
+) i: T[size], init: U => o: U {
+  if (size == 1) {
+    i[0], init => op => o;
+  } else {
+    i[0], init => op
+      => declare tmp: U;
 
-    if (size > 1) {
-        i[0:size - 2]
-            => map(I, O, size - 1, op)
-            => o[0:size - 2];
-    }
+    i[1:size - 1], tmp
+      => fold(T, U, size - 1, op)
+      => o;
+  }
+}
+\end{lstlisting}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{GAPLIR}
+    \begin{columns}[T]
+        \begin{column}{0.45\textwidth}
+            \begin{tikzpicture}[
+            block/.style={
+                draw, thick,
+                minimum width  = 0.65cm,
+                minimum height = 0.65cm,
+                font = \small
+            },
+            >=Stealth,
+            thick
+            ]
+                %% ── Node positions ───────────────────────────────────────────────────────────
+                %  Row 1  (top):    y =  0
+                %  Row 2:           y = -1.6   (tightened from -2.2)
+                %  Row n  (bottom): y = -4.2   (shifted up accordingly)
+                
+                \node[block] (u1) at (0,  -0.2  ) {$a$};
+
+                \node[block] (u2) at (0, -1.6) {$a$};
+
+                \node[block] (un) at (0, -4.2) {$a$};
+                
+                %% ── Nested boxes (drawn first so arrows appear on top) ───────────────────────
+                % Outer box  – wraps all rows
+                \draw[thick] (-1.60,  0.50) rectangle (0.90, -4.85);
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.70, 0.65) {$\mathrm{fold}(n)$};
+                % Middle box – wraps rows 2 … n
+                \draw[thick] (-1.30, -0.95) rectangle (0.72, -4.70);
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.30, -0.95) {$\mathrm{fold}(n{-}1)$};
+                % Inner box  – wraps row n only
+                \draw[thick] (-0.50, -3.55) rectangle (0.55, -4.60);
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-0.50, -3.55) {$\mathrm{fold}(1)$};
+                
+                %% ── Input arrows ─────────────────────────────────────────────────────────────
+                \draw[->, dashed, red] (-3.0,  -0.2  ) node[left, black] {$v_1$} -- (u1.west);
+                \draw[->] (-3.0, -1.6) node[left] {$v_2$} -- (u2.west);
+                \draw[->] (-3.0, -4.2) node[left] {$v_n$} -- (un.west);
+                
+                % Vertical dots between v₂ and vₙ
+                \node at (-3.0, -2.9) {$\vdots$};
+                
+                %% ── Seed s (top) ─────────────────────────────────────────────────────────────
+                \draw[->] (0, 0.8) node[above] {$s$} -- (u1.north);
+                
+                %% ── u → u (vertical, between rows) ──────────────────────────────────────────
+                \draw[->, dashed, red] (u1.south) -- (u2.north);
+                
+                % u₂ → dots → uₙ
+                \draw[->, dashed, red] (u2.south) -- ++(0, -0.50);
+                \node at (0, -2.95) {$\vdots$};
+                \draw[->, dashed, red] (0, -3.45) -- (un.north);
+                
+                %% ── Final output ─────────────────────────────────────────────────────────────
+                \draw[->, dashed, red] (un.east) -- ++(1.4, 0) node[right, black] {$s'$};
+            \end{tikzpicture}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+\begin{lstlisting}[language=gapl]
+function fold(
+  T: interface, U: interface,
+  size: integer, op: T, U => U,
+) i: T[size], init: U => o: U {
+  if (size == 1) {
+    i[0], init => op => o;
+  } else {
+    i[0], init => op
+      => declare tmp: U;
+
+    i[1:size - 1], tmp
+      => fold(T, U, size - 1, op)
+      => o;
+  }
 }
 \end{lstlisting}
         \end{column}
