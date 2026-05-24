@@ -60,7 +60,7 @@ interface packet32
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Functions}
+\begin{frame}[fragile,t]{Functions}
     \begin{columns}[T]
         \begin{column}{0.45\textwidth}
             This is an example of a function definition.
@@ -110,7 +110,7 @@ function fold(
     \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{GAPLIR}
+\begin{frame}[fragile,t]{GAPLIR}
     \begin{columns}[T]
         \begin{column}{0.45\textwidth}
             \begin{tikzpicture}[
@@ -128,30 +128,30 @@ function fold(
                 %  Row 2:           y = -1.6   (tightened from -2.2)
                 %  Row n  (bottom): y = -4.2   (shifted up accordingly)
                 
-                \node[block] (u1) at (0,  -0.2  ) {$a$};
+                \node[block] (u1) at (0,  -0.2  ) {\texttt{op}};
 
-                \node[block] (u2) at (0, -1.6) {$a$};
+                \node[block] (u2) at (0, -1.6) {\texttt{op}};
 
-                \node[block] (un) at (0, -4.2) {$a$};
+                \node[block] (un) at (0, -4.2) {\texttt{op}};
                 
                 %% ── Nested boxes (drawn first so arrows appear on top) ───────────────────────
                 % Outer box  – wraps all rows
                 \draw[thick] (-1.60,  0.50) rectangle (0.90, -4.85);
-                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.70, 0.65) {$\mathrm{fold}(n)$};
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.70, 0.65) {fold(n)};
                 % Middle box – wraps rows 2 … n
                 \draw[thick] (-1.30, -0.95) rectangle (0.72, -4.70);
-                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.30, -0.95) {$\mathrm{fold}(n{-}1)$};
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-1.30, -0.95) {fold(n-1)};
                 % Inner box  – wraps row n only
                 \draw[thick] (-0.50, -3.55) rectangle (0.55, -4.60);
-                \node[anchor=south west, inner sep=0pt, font=\small] at (-0.50, -3.55) {$\mathrm{fold}(1)$};
+                \node[anchor=south west, inner sep=0pt, font=\small] at (-0.50, -3.55) {fold(1)};
                 
                 %% ── Input arrows ─────────────────────────────────────────────────────────────
-                \draw[->, dashed, red] (-3.0,  -0.2  ) node[left, black] {$v_1$} -- (u1.west);
-                \draw[->] (-3.0, -1.6) node[left] {$v_2$} -- (u2.west);
-                \draw[->] (-3.0, -4.2) node[left] {$v_n$} -- (un.west);
+                \draw[->, dashed, red] (-2.0,  -0.2  ) node[left, black] {\texttt{i[0]}} -- (u1.west);
+                \draw[->] (-2.0, -1.6) node[left] {\texttt{i[1]}} -- (u2.west);
+                \draw[->] (-2.0, -4.2) node[left] {\texttt{i[n-1]}} -- (un.west);
                 
                 % Vertical dots between v₂ and vₙ
-                \node at (-3.0, -2.9) {$\vdots$};
+                \node at (-2.5, -2.9) {$\vdots$};
                 
                 %% ── Seed s (top) ─────────────────────────────────────────────────────────────
                 \draw[->] (0, 0.8) node[above] {$s$} -- (u1.north);

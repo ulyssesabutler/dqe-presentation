@@ -10,7 +10,7 @@
         \item Within the context of a module that invokes a submodule, we split the \textit{original} retiming problem of the module into an \textit{interior} and \textit{exterior}
         \begin{itemize}
             \item Exterior problem is constructed using the results of the interior problem
-            \item Interior retimes subgraph for submodule, with super-source and super-sink nodes
+            \item Interior retimes subgraph for submodule
             \item Exterior retimes parents module, replace submodule with a \textit{contracted graph}
         \end{itemize}
     \end{itemize}
@@ -96,4 +96,445 @@
 \end{tikzpicture}
 \end{center}
     
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Interior}
+
+    We add a super-source $s_i$ and super-sink $s_o$ to the subgraph.
+    
+    \begin{itemize}
+      \item Ensure all paths maintain relative timing
+      \item Nodes and edges created with weights of 0
+    \end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[
+  port/.style={circle, draw, fill=white, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+\begin{scope}[shift={(-7.575, 0.3)}, scale=0.65]
+  \node[body] (si) at (0,   0) {$s_i$};
+  \node[body] (so) at (11,  0) {$s_o$};
+  \node[body] (i0) at (2,  0.8) {$i_0$};
+  \node[body] (i1) at (2, -0.8) {$i_1$};
+  \node[body] (o0) at (9,  0.8) {$o_0$};
+  \node[body] (o1) at (9, -0.8) {$o_1$};
+  \node[font=\scriptsize\itshape] (intlbl) at (5.5, 0) {(subcomponent graph)};
+  \draw[->] (si) -- (i0);
+  \draw[->] (si) -- (i1);
+  \draw[->] (i0) -- (intlbl.west |- {(0, 0.7)});
+  \draw[->] (i0) -- (intlbl.west |- {(0, 0.3)});
+  \draw[->] (i1) -- (intlbl.west |- {(0,-0.3)});
+  \draw[->] (i1) -- (intlbl.west |- {(0,-0.7)});
+  \draw[->] (intlbl.east |- {(0, 0.6)}) -- (o0);
+  \draw[->] (intlbl.east |- {(0,-0.6)}) -- (o1);
+  \draw[->] (o0) -- (so);
+  \draw[->] (o1) -- (so);
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\framesection{No registers with super nodes}
+
+These nodes and edges don't correspond to any physical part of the circuit.
+
+\begin{itemize}
+  \item Add ILP constraint, no registers between I/O and super nodes
+\end{itemize}
+
+\framesection{Export}
+
+\begin{itemize}
+  \item \textit{Component delay}, \textit{input delay}, and \textit{output delay}
+  \item \textit{Component retiming difference}, $r(s_o) - r(s_i)$
+\end{itemize}
+
+\framebreak
+
+\framesection{Component Delay}
+
+The combinational path from $s_i$ to $s_o$ with the longest propagation delay.
+
+\begin{center}
+\begin{tikzpicture}[
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+
+\node[body, draw=red] (si) at (0,    0.75) {$s_i$};
+\node[body, draw=red] (so) at (11,   0.75) {$s_o$};
+
+% Top path out of si: 2 nodes
+\node[body] (a1) at (2,   2) {};
+\node[body] (a2) at (4,   2) {};
+
+% Top path into so: 1 node
+\node[body] (d1) at (8.5,   2) {};
+
+% Second path out of si: 1 node; into so: 2 nodes
+\node[body] (b1) at (3,   0.75) {};
+\node[body] (c1) at (8,   0.75) {};
+\node[body] (c2) at (9.5,   0.75) {};
+
+% Central ellipsis node
+\node (ell) at (5.5, 1.5) {$\cdots$};
+
+% Bottom complete path: 2 nodes
+\node[body, draw=red] (e1) at (3.5, -0.5) {};
+\node[body, draw=red] (e2) at (7.5, -0.5) {};
+
+% Top path edges (2 nodes left, 1 node right)
+\draw[->] (si) -- (a1);
+\draw[->] (a1) -- (a2);
+\draw[->] (a2) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (d1);
+\draw[->] (d1) -- (so);
+
+% Second path edges (1 node left, 2 nodes right)
+\draw[->] (si) -- (b1);
+\draw[->] (b1) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (c1);
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (so);
+
+% Bottom path edges
+\draw[->, red] (si) to[out=-35, in=180] (e1);
+\draw[->, red] (e1) -- (e2);
+\draw[->, red] (e2) to[out=0, in=-145] (so);
+
+\end{tikzpicture}
+\end{center}
+
+\framebreak
+
+\framesection{Input Delay}
+
+The longest combinational path starting at $s_i$ and ending at a register.
+
+\begin{center}
+\begin{tikzpicture}[
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+
+\node[body, draw=red] (si) at (0,    0.75) {$s_i$};
+\node[body] (so) at (11,   0.75) {$s_o$};
+
+% Top path out of si: 2 nodes
+\node[body, draw=red] (a1) at (2,   2) {};
+\node[body, draw=red] (a2) at (4,   2) {};
+
+% Top path into so: 1 node
+\node[body] (d1) at (8.5,   2) {};
+
+% Second path out of si: 1 node; into so: 2 nodes
+\node[body] (b1) at (3,   0.75) {};
+\node[body] (c1) at (8,   0.75) {};
+\node[body] (c2) at (9.5,   0.75) {};
+
+% Central ellipsis node
+\node (ell) at (5.5, 1.5) {$\cdots$};
+
+% Bottom complete path: 2 nodes
+\node[body] (e1) at (3.5, -0.5) {};
+\node[body] (e2) at (7.5, -0.5) {};
+
+% Top path edges (2 nodes left, 1 node right)
+\draw[->,red] (si) -- (a1);
+\draw[->,red] (a1) -- (a2);
+\draw[->] (a2) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (d1);
+\draw[->] (d1) -- (so);
+
+% Second path edges (1 node left, 2 nodes right)
+\draw[->] (si) -- (b1);
+\draw[->] (b1) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (c1);
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (so);
+
+% Bottom path edges
+\draw[->] (si) to[out=-35, in=180] (e1);
+\draw[->] (e1) -- (e2);
+\draw[->] (e2) to[out=0, in=-145] (so);
+
+\end{tikzpicture}
+\end{center}
+
+\framebreak
+
+\framesection{Output Delay}
+
+The longest combinational path starting at a register and ending at $s_o$.
+
+\begin{center}
+\begin{tikzpicture}[
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+
+\node[body] (si) at (0,    0.75) {$s_i$};
+\node[body, draw=red] (so) at (11,   0.75) {$s_o$};
+
+% Top path out of si: 2 nodes
+\node[body] (a1) at (2,   2) {};
+\node[body] (a2) at (4,   2) {};
+
+% Top path into so: 1 node
+\node[body] (d1) at (8.5,   2) {};
+
+% Second path out of si: 1 node; into so: 2 nodes
+\node[body] (b1) at (3,   0.75) {};
+\node[body, draw=red] (c1) at (8,   0.75) {};
+\node[body, draw=red] (c2) at (9.5,   0.75) {};
+
+% Central ellipsis node
+\node (ell) at (5.5, 1.5) {$\cdots$};
+
+% Bottom complete path: 2 nodes
+\node[body] (e1) at (3.5, -0.5) {};
+\node[body] (e2) at (7.5, -0.5) {};
+
+% Top path edges (2 nodes left, 1 node right)
+\draw[->] (si) -- (a1);
+\draw[->] (a1) -- (a2);
+\draw[->] (a2) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (d1);
+\draw[->] (d1) -- (so);
+
+% Second path edges (1 node left, 2 nodes right)
+\draw[->] (si) -- (b1);
+\draw[->] (b1) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+\draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (c1);
+\draw[->, draw=red] (c1) -- (c2);
+\draw[->, draw=red] (c2) -- (so);
+
+% Bottom path edges
+\draw[->] (si) to[out=-35, in=180] (e1);
+\draw[->] (e1) -- (e2);
+\draw[->] (e2) to[out=0, in=-145] (so);
+
+\end{tikzpicture}
+\end{center}
+
+\framebreak
+
+\framesection{Component Retiming Difference}
+
+The difference between $r(s_o)$ and $r(s_i)$.
+
+\begin{center}
+  \begin{tikzpicture}[
+    body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+    >=Stealth, semithick, scale=0.75, transform shape
+  ]
+
+  \node[body, draw=red] (si) at (0,    0.75) {$s_i$};
+  \node[body, draw=red] (so) at (11,   0.75) {$s_o$};
+
+  % Top path out of si: 2 nodes
+  \node[body] (a1) at (2,   2) {};
+  \node[body] (a2) at (4,   2) {};
+
+  % Top path into so: 1 node
+  \node[body] (d1) at (8.5,   2) {};
+
+  % Second path out of si: 1 node; into so: 2 nodes
+  \node[body] (b1) at (3,   0.75) {};
+  \node[body] (c1) at (8,   0.75) {};
+  \node[body] (c2) at (9.5,   0.75) {};
+
+  % Central ellipsis node
+  \node (ell) at (5.5, 1.5) {$\cdots$};
+
+  % Bottom complete path: 2 nodes
+  \node[body] (e1) at (3.5, -0.5) {};
+  \node[body] (e2) at (7.5, -0.5) {};
+
+  % Top path edges (2 nodes left, 1 node right)
+  \draw[->] (si) -- (a1);
+  \draw[->] (a1) -- (a2);
+  \draw[->] (a2) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+  \draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (d1);
+  \draw[->] (d1) -- (so);
+
+  % Second path edges (1 node left, 2 nodes right)
+  \draw[->] (si) -- (b1);
+  \draw[->] (b1) -- node[midway, above, font=\scriptsize] {$1$} (ell);
+  \draw[->] (ell) -- node[midway, above, font=\scriptsize] {$1$} (c1);
+  \draw[->] (c1) -- (c2);
+  \draw[->] (c2) -- (so);
+
+  % Bottom path edges
+  \draw[->] (si) to[out=-35, in=180] (e1);
+  \draw[->] (e1) -- (e2);
+  \draw[->] (e2) to[out=0, in=-145] (so);
+
+  \end{tikzpicture}
+  \end{center}
+  \end{frame}
+
+\begin{frame}{Exterior}
+
+  All input and output nodes are replaces with a single \textit{contracted input node} ($c_i$) and a single \textit{contracted output node} ($c_o$).
+    
+  \begin{itemize}
+    \item The remainder of the submodule graph is replaced with the contracted graph.
+  \end{itemize}
+
+\begin{center}
+\begin{tikzpicture}[
+  port/.style={circle, draw, fill=white, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+  >=Stealth, semithick, scale=0.75, transform shape
+]
+\begin{scope}[shift={(3.55, 0.3)}, scale=0.65]
+  \draw[dashed] (0, -1.0) rectangle (6, 1.0);
+  \node[port] (ci) at (0, 0) {$c_i$};
+  \node[port] (co) at (6, 0) {$c_o$};
+  \node[font=\scriptsize\itshape] (extlbl) at (3, 0) {(contracted graph)};
+  \draw[->] (-1.3,  0.4) -- (ci);
+  \draw[->] (-1.3, -0.4) -- (ci);
+  \draw[->] (co) -- (7.3,  0.9);
+  \draw[->] (co) -- (7.3,  0.3);
+  \draw[->] (co) -- (7.3, -0.3);
+  \draw[->] (co) -- (7.3, -0.9);
+  \draw[->] (ci) -- (extlbl.west |- {(0, 0.3)});
+  \draw[->] (ci) -- (extlbl.west |- {(0,-0.3)});
+  \draw[->] (extlbl.east |- {(0, 0.3)}) -- (co);
+  \draw[->] (extlbl.east |- {(0,-0.3)}) -- (co);
+\end{scope}
+\end{tikzpicture}
+\end{center}
+
+\framesection{Constraints}
+
+We must add constraints to ensure the contracted graph accurately represents the retimed submodule
+
+\begin{itemize}
+  \item After retiming the contracted graph must have the same component delay, input delay, output delay, and component retiming difference as the original submodule
+\end{itemize}
+    
+\end{frame}
+
+\begin{frame}[allowframebreaks]{Contracted Graph Construction}
+
+  \begin{itemize}
+    \item After retiming the contracted graph must have the same component delay, input delay, output delay, and component retiming difference as the original submodule
+  \end{itemize}
+
+  \begin{center}
+    \begin{tikzpicture}[
+      port/.style={circle, draw, fill=white, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+      body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+      >=Stealth, semithick, scale=0.75, transform shape
+    ]
+      %% --- Module boundary (drawn first so ports paint over it) ---
+      \draw[dashed] (0, -1.1) rectangle (5, 1.1);
+
+      %% --- Contracted input/output nodes on the boundary ---
+      \node[port] (ci) at (0, 0) {$c_i$};
+      \node[port] (co) at (5, 0) {$c_o$};
+
+      %% --- Top path: two nodes ---
+      \node[body] (ri) at (1.7,  0.5) {$d_i$};
+      \node[body] (ro) at (3.3,  0.5) {$d_o$};
+
+      %% --- Bottom path: single node ---
+      \node[body] (p) at (2.5, -0.5) {$d_c$};
+
+      %% --- Two external incoming wires to ci ---
+      \draw[->] (-1.1,  0.4) -- (ci);
+      \draw[->] (-1.1, -0.4) -- (ci);
+
+      %% --- Four external outgoing wires from co ---
+      \draw[->] (co) -- (6.1,  0.9);
+      \draw[->] (co) -- (6.1,  0.3);
+      \draw[->] (co) -- (6.1, -0.3);
+      \draw[->] (co) -- (6.1, -0.9);
+
+      %% --- ci feeds both paths ---
+      \draw[->] (ci) -- (ri);
+      \draw[->] (ci) -- (p);
+
+      %% --- Top path: ri -> ro -> co ---
+      \draw[->] (ri) -- (ro);
+      \draw[->] (ro) -- (co);
+
+      %% --- Bottom path: p -> co ---
+      \draw[->] (p) -- (co);
+    \end{tikzpicture}
+  \end{center}
+
+  We give each node a popagation delay, then give each edge an initial weight and set constraints on $r$-values.
+
+  \begin{itemize}
+    \item Set $d(c_i)$ and $d(c_o)$ to 0, $d(d_i)$ to the input delay, $d(d_o)$ to the output delay, and $d(d_c)$ to the component delay
+    \item Goals:
+    \begin{itemize}
+      \item We want the path through $d_c$ to be combinational, $w_r(c_i, d_c) = w_r(d_c, c_o) = 0$.
+      \item A register between $d_i$ and $d_o$, $w_r(c_i, d_i)= w_r(d_o, c_o)=0$ and $w_r(d_i, d_o) \geq 1$.
+    \end{itemize}
+  \end{itemize}
+
+  \framebreak
+
+  We start by initializing $w(c_i, d_i) = w(d_o, c_o) = 0$.
+
+  \begin{itemize}
+    \item We add constraints requiring $r(c_i) = r(d_i)$ and $r(d_o) = r(c_o)$, maintaining zero weights
+    \item To ensure $w_r(d_i, d_o) \geq 1$, choose $w(d_i, d_o) > r(c_i) - r(c_o)$, such as $r(c_i) - r(c_o) + 1$
+  \end{itemize}
+
+  We want the other path to end up being combinational.
+
+  \begin{itemize}
+    \item Start by arbitrarily setting $r(d_c) = r(c_i)$, then $w(c_i, d_c) = 0$.
+    \item Finally, set $w(d_c, c_o) = r(c_i) - r(c_o)$
+  \end{itemize}
+
+  \begin{center}
+    \begin{tikzpicture}[
+      port/.style={circle, draw, fill=white, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+      body/.style={circle, draw, minimum size=0.85cm, inner sep=2pt, font=\scriptsize},
+      >=Stealth, semithick, scale=0.75, transform shape
+    ]
+      %% --- Module boundary (drawn first so ports paint over it) ---
+      \draw[dashed] (0, -1.1) rectangle (5, 1.1);
+
+      %% --- Contracted input/output nodes on the boundary ---
+      \node[port] (ci) at (0, 0) {$c_i$};
+      \node[port] (co) at (5, 0) {$c_o$};
+
+      %% --- Top path: two nodes ---
+      \node[body] (ri) at (1.7,  0.5) {$d_i$};
+      \node[body] (ro) at (3.3,  0.5) {$d_o$};
+
+      %% --- Bottom path: single node ---
+      \node[body] (p) at (2.5, -0.5) {$d_c$};
+
+      %% --- Two external incoming wires to ci ---
+      \draw[->] (-1.1,  0.4) -- (ci);
+      \draw[->] (-1.1, -0.4) -- (ci);
+
+      %% --- Four external outgoing wires from co ---
+      \draw[->] (co) -- (6.1,  0.9);
+      \draw[->] (co) -- (6.1,  0.3);
+      \draw[->] (co) -- (6.1, -0.3);
+      \draw[->] (co) -- (6.1, -0.9);
+
+      %% --- ci feeds both paths ---
+      \draw[->] (ci) -- (ri);
+      \draw[->] (ci) -- (p);
+
+      %% --- Top path: ri -> ro -> co ---
+      \draw[->] (ri) -- (ro);
+      \draw[->] (ro) -- (co);
+
+      %% --- Bottom path: p -> co ---
+      \draw[->] (p) -- (co);
+    \end{tikzpicture}
+  \end{center}
+
 \end{frame}
