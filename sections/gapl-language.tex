@@ -26,6 +26,62 @@
     We'll discuss some idioms that we can use to express packet processing applications.
 \end{frame}
 
+\begin{frame}{Compiler}
+
+    \begin{center}
+        \begin{tikzpicture}[
+            stage/.style={draw, rounded corners=4pt, minimum width=1.8cm, minimum height=0.7cm,
+                            font=\small, inner sep=6pt},
+            >=Stealth, semithick,
+            every edge quotes/.style={font=\scriptsize, fill=white, inner sep=2pt}
+        ]
+            \node[stage] (gapl)    at (0,   0) {GAPL};
+            \node[stage] (gaplir)  at (3.5, 0) {GAPLIR};
+            \node[stage] (verilog) at (7,   0) {Verilog};
+
+            %% GAPL -> GAPLIR
+            \draw[->] (gapl) -- (gaplir)
+            node[midway, above, font=\scriptsize, align=center] {1. convert\\to graph};
+
+            %% GAPLIR -> Verilog
+            \draw[->] (gaplir) -- (verilog)
+            node[midway, above, font=\scriptsize, align=center] {4. translate\\to Verilog};
+
+            %% Self-loop on GAPLIR
+            \draw[->] (gaplir) to[out=50, in=130, looseness=4]
+            node[midway, above, font=\scriptsize, align=center] {2. Inlining\\3. Register Placement}
+            (gaplir);
+        \end{tikzpicture} 
+    \end{center}
+
+    The input to the compiler is GAPL code.
+
+    \begin{itemize}
+        \item Based on functional languages
+    \end{itemize}
+
+    GAPL code is converted to a graph representation called GAPLIR.
+
+    \begin{itemize}
+        \item Converting a functional description is straightforward,
+        full parallelism is preserved
+        ~\footfullcite{clash}
+        \item Transformations are applied
+        \begin{itemize}
+            \item Inlining
+            \item Register placement
+        \end{itemize}
+    \end{itemize}
+
+    Each GAPLIR graph is then translated to a Verilog module.
+
+    \begin{itemize}
+        \item Each node becomes an operator, an \texttt{always} block, or an instantiation
+        \item Each edge becomes an assignment
+    \end{itemize}
+
+\end{frame}
+
 \begin{frame}[fragile]{Interfaces}
     \begin{columns}[T]
         \begin{column}{0.45\textwidth}
