@@ -1,0 +1,81 @@
+\section{Related Works --- Aetherling}
+\sepframe[image={\includegraphics[width=3.5cm]{nyu-brand/nyu-torch.jpg}}]
+
+\newcommand{\Lseq}{L\textsuperscript{seq}\xspace}
+\newcommand{\Lst}{L\textsuperscript{st}\xspace}
+
+\begin{frame}[allowframebreaks]{Overview}
+    Aetherling is a system that was created to develop image processing software on FPGAs~\footfullcite{aetherling}.
+    \begin{itemize}
+        \item Includes two languages: \Lseq (the front-end) and \Lst (an intermediate representation).
+        \item Produces statically scheduled programs given a target throughput
+    \end{itemize}
+
+    \Lseq is a data-parallel algorithm for image processing.
+
+    \begin{itemize}
+        \item A functional language. Haskell-based, with additional constraints
+        \item Input must be a ``homogenous, fixed-length sequence''
+        \begin{itemize}
+            \item That is, input must be \lstinline[language=Haskell]{(Seq n t)}
+            \item It can also be nested, e.g., \lstinline[language=Haskell]{(Seq n (Seq m t))}
+        \end{itemize}
+        \item Dataflow must be a DAG
+    \end{itemize}
+
+    \Lst is a ``space-time aware'' intermediate representation.
+
+    \begin{itemize}
+        \item Switches abstract \lstinline[language=Haskell]{Seq} types for \lstinline[language=Haskell]{SSeq} and \lstinline[language=Haskell]{TSeq}
+    \end{itemize}
+
+    \framebreak
+
+    Sequence types in \Lst imply a specific interface.
+    
+    \begin{itemize}
+        \item \lstinline[language=Haskell]{(SSeq n t)} distributes elements ``in space''
+        \begin{itemize}
+            \item Functions like \lstinline[language=Haskell]|map_s :: (t -> t') -> SSeq n t -> SSeq n t'| process in parallel
+        \end{itemize}
+        \item \lstinline[language=Haskell]{(TSeq n i t)} distributes elements ``in time''
+        \begin{itemize}
+            \item Additional argument specifies clock cycles with valid output
+            \item Functions like \lstinline[language=Haskell]|map_t :: (t -> t') -> TSeq n i t -> TSeq n i t'| process in sequentially
+            \begin{itemize}
+                \item ``The input and output sequences for all Aetherling's space-time operators require the same amount of time to communicate.''
+                \item So, we need to bridge this gap, e.g., \lstinline[language=Haskell]|reduce|
+            \end{itemize}
+        \end{itemize}
+        \item These functions also have different area requirements and different delays
+        \item Can also be nested, e.g., \lstinline[language=Haskell]{(TSeq n 0 (SSeq m t))} is partially parallel
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Compilation}
+    The Aetherling compiler transform an \Lseq program with an output throughput, $T$, into an equivalent \Lst program for that throughput.
+
+    \begin{itemize}
+        \item To process a DAG of operators, start with last an continue to front
+    \end{itemize}
+
+    Start with a candidate output type in \Lst.
+
+    \begin{itemize}
+        \item For an \Lseq type, there are multiple eqivilant \Lst types with equal throughputs
+        \begin{itemize}
+            \item E.g., \lstinline[language=Haskell]{(Seq 8 Int)} and $T=2$, \lstinline[language=Haskell]|TSeq 4 0 (SSeq 2 Int)| or \lstinline[language=Haskell]|TSeq 2 2 (SSeq 4 Int)|
+        \end{itemize}
+        \item Aetherling deterministically creates a list of candidates based on templates
+    \end{itemize}
+
+    For each candiate, transform the \Lseq program into an \Lst program with that output type.
+
+    \begin{itemize}
+        \item Compute the resource usage of the design for each output type
+    \end{itemize}
+
+    Finally, we choose the design with the lowest resource usage.
+
+\end{frame}
